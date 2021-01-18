@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -91,20 +92,23 @@ func makeV2Request(ctx context.Context, req *Request) (*http.Request, error) {
 }
 
 func (h handler) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
+	log.Printf("Got payload: %s\n", string(payload))
 	// Parse
 	var req Request
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return nil, err
 	}
 
-	w := new(agw.ResponseWriter)
+	w := agw.NewResponseWriter()
 
 	// Find out which version it is
 	var httpRequest *http.Request
 	var err error
 	if req.Version == "2.0" {
+		log.Printf("Found V2 request")
 		httpRequest, err = makeV2Request(ctx, &req)
 	} else {
+		log.Printf("Found V1 request")
 		httpRequest, err = makeV1Request(ctx, &req)
 	}
 	if err != nil {

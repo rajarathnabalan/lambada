@@ -13,6 +13,12 @@ type ResponseWriter struct {
 	Binary     bool
 }
 
+func NewResponseWriter() *ResponseWriter {
+	return &ResponseWriter{
+		header: http.Header{},
+	}
+}
+
 func (w *ResponseWriter) Header() http.Header {
 	return w.header
 }
