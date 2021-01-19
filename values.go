@@ -1,10 +1,10 @@
-package agw
+package lambada
 
 import (
 	"net/url"
 )
 
-func ToURLValues(v map[string]string) url.Values {
+func toURLValues(v map[string]string) url.Values {
 	res := make(url.Values)
 	for k, v := range v {
 		res.Set(k, v)

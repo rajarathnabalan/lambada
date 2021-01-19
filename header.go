@@ -1,8 +1,8 @@
-package agw
+package lambada
 
 import "net/http"
 
-func ToSingleValueHeaders(h http.Header) map[string]string {
+func toSingleValueHeaders(h http.Header) map[string]string {
 	res := map[string]string{}
 	for k, v := range h {
 		if len(v) > 0 {
@@ -12,7 +12,7 @@ func ToSingleValueHeaders(h http.Header) map[string]string {
 	return res
 }
 
-func FromSingleValueHeaders(h map[string]string) http.Header {
+func fromSingleValueHeaders(h map[string]string) http.Header {
 	res := make(http.Header)
 	for k, v := range h {
 		res.Set(k, v)
@@ -20,7 +20,7 @@ func FromSingleValueHeaders(h map[string]string) http.Header {
 	return res
 }
 
-func CanonicalizeHeader(h http.Header) http.Header {
+func canonicalizeHeader(h http.Header) http.Header {
 	res := make(http.Header)
 	for k, v := range h {
 		res[http.CanonicalHeaderKey(k)] = v
