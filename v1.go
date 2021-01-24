@@ -14,7 +14,7 @@ func makeV1Request(ctx context.Context, req *Request) (*http.Request, error) {
 	}
 
 	// Build the initial request
-	httpReq, err := http.NewRequestWithContext(withRequest(ctx, req), req.HTTPMethod, "", bytes.NewReader(body))
+	httpReq, err := http.NewRequestWithContext(WithRequest(ctx, req), req.HTTPMethod, "", bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
