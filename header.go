@@ -2,6 +2,8 @@ package lambada
 
 import "net/http"
 
+// toSingleValueHeaders converts the headers to single value headers.
+// If any header is multi-valued, only the first value is retained.
 func toSingleValueHeaders(h http.Header) map[string]string {
 	res := map[string]string{}
 	for k, v := range h {
@@ -12,6 +14,7 @@ func toSingleValueHeaders(h http.Header) map[string]string {
 	return res
 }
 
+// fromSingleValueHeaders returns a http.Header from a map of single-valued headers.
 func fromSingleValueHeaders(h map[string]string) http.Header {
 	res := make(http.Header)
 	for k, v := range h {
@@ -20,6 +23,7 @@ func fromSingleValueHeaders(h map[string]string) http.Header {
 	return res
 }
 
+// canonicalizeHeader returns a copy of h with all the keys canonicalized using http.CanonicalHeaderKey
 func canonicalizeHeader(h http.Header) http.Header {
 	res := make(http.Header)
 	for k, v := range h {

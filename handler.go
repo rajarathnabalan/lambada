@@ -13,6 +13,9 @@ type handler struct {
 	httpHandler http.Handler
 }
 
+// Invoke is the main Lambda handler.
+// It unmarshals the payload into a Request, then builds an http.Request from the Request data, calls the wrapped
+// http.Handler and converts the response into an API Gateway response.
 func (h handler) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
 
 	log.Printf("Got payload: %s\n", string(payload))
@@ -37,14 +40,16 @@ func (h handler) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Let the handler process the request
 	h.httpHandler.ServeHTTP(w, httpRequest)
 
 	return json.Marshal(&Response{
-		StatusCode:        w.StatusCode(),
+		StatusCode:        w.statusCode,
 		Headers:           toSingleValueHeaders(w.Header()),
 		MultiValueHeaders: w.Header(),
-		Body:              bytesToBody(w.Body(), w.Binary),
-		IsBase64Encoded:   w.Binary,
+		Body:              bytesToBody(w.body.Bytes(), w.binary),
+		IsBase64Encoded:   w.binary,
 	})
 }
 

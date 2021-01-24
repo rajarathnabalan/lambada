@@ -7,6 +7,7 @@ import (
 	"net/url"
 )
 
+// makeV1Request converts the API Gateway V1 request stored into req into an http.Request
 func makeV1Request(ctx context.Context, req *Request) (*http.Request, error) {
 	body, err := bodyToBytes(req.Body, req.IsBase64Encoded)
 	if err != nil {

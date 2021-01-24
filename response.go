@@ -6,11 +6,13 @@ import (
 	"net/http"
 )
 
+// responseWriter is an implementation of http.ResponseWriter which stores the data written to it internally.
+// Trailers are not supported by this implementation.
 type responseWriter struct {
 	header     http.Header
 	body       bytes.Buffer
 	statusCode int
-	Binary     bool
+	binary     bool
 }
 
 func newResponseWriter() *responseWriter {
@@ -37,21 +39,13 @@ func (w *responseWriter) WriteHeader(statusCode int) {
 	w.statusCode = statusCode
 }
 
-func (w *responseWriter) Body() []byte {
-	return w.body.Bytes()
-}
-
-func (w *responseWriter) StatusCode() int {
-	return w.statusCode
-}
-
 // SetBinary enforces binary mode for the given ResponseWriter.
 // That is, the response will be encoded to Base64 when returned to API Gateway.
 //
 // If the passed ResponseWriter has not been provided by Lambada, this function has no effect.
 func SetBinary(w http.ResponseWriter) {
 	if w, ok := w.(*responseWriter); ok {
-		w.Binary = true
+		w.binary = true
 	}
 }
 
@@ -61,6 +55,6 @@ func SetBinary(w http.ResponseWriter) {
 // If the passed ResponseWriter has not been provided by Lambada, this function has no effect.
 func SetText(w http.ResponseWriter) {
 	if w, ok := w.(*responseWriter); ok {
-		w.Binary = false
+		w.binary = false
 	}
 }
