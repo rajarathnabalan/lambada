@@ -2,6 +2,10 @@ package lambada
 
 import "github.com/aws/aws-lambda-go/events"
 
+// Request represents an API Gateway event.
+// This struct is both compatible with V1 (Lambda Proxy Integration) and V2 (HTTP API) events and is basically a merge
+// of the `APIGatewayProxyRequest` and `APIGatewayV2HTTPRequest` structs defined in the
+// `github.com/aws/aws-lambda-go/events` package.
 type Request struct {
 	// V1 Only
 	Resource                        string              `json:"resource"` // The resource path defined in API Gateway
@@ -27,6 +31,10 @@ type Request struct {
 	RequestContext        RequestContext    `json:"requestContext"`
 }
 
+// RequestContext contains the information to identify the AWS account and resources invoking the Lambda function.
+// This struct is both compatible with V1 (Lambda Proxy Integration) and V2 (HTTP API) events and is basically a merge
+// of the `APIGatewayProxyRequestContext` and `APIGatewayV2HTTPRequestContext` structs defined in the
+// `github.com/aws/aws-lambda-go/events` package.
 type RequestContext struct {
 	// V1 Only
 	ResourceID       string                           `json:"resourceId"`
@@ -54,6 +62,10 @@ type RequestContext struct {
 	Authorizer   map[string]interface{} `json:"authorizer"`
 }
 
+// Response contains the response to send back to API Gateway
+// This struct is both compatible with V1 (Lambda Proxy Integration) and V2 (HTTP API) events and is basically a merge
+// of the `APIGatewayProxyResponse` and `APIGatewayV2HTTPResponse` structs defined in the
+// `github.com/aws/aws-lambda-go/events` package.
 type Response struct {
 	// V2 Only
 	Cookies []string `json:"cookies,omitempty"`

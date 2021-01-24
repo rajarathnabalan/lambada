@@ -45,12 +45,20 @@ func (w *responseWriter) StatusCode() int {
 	return w.statusCode
 }
 
+// SetBinary enforces binary mode for the given ResponseWriter.
+// That is, the response will be encoded to Base64 when returned to API Gateway.
+//
+// If the passed ResponseWriter has not been provided by Lambada, this function has no effect.
 func SetBinary(w http.ResponseWriter) {
 	if w, ok := w.(*responseWriter); ok {
 		w.Binary = true
 	}
 }
 
+// SetText enforces text mode for the given ResponseWriter.
+// That is, the response will be be set to not be encoded to Base64 when returned to API Gateway.
+//
+// If the passed ResponseWriter has not been provided by Lambada, this function has no effect.
 func SetText(w http.ResponseWriter) {
 	if w, ok := w.(*responseWriter); ok {
 		w.Binary = false

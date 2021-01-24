@@ -48,6 +48,7 @@ func (h handler) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
 	})
 }
 
+// Serve starts the Lambda handler using the http.Handler to serve incoming requests.
 func Serve(h http.Handler) {
 	lambda.StartHandler(handler{httpHandler: h})
 }
