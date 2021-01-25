@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 // responseWriter is an implementation of http.ResponseWriter which stores the data written to it internally.
 // Trailers are not supported by this implementation.
 type responseWriter struct {
-	header     http.Header
-	body       bytes.Buffer
-	statusCode int
-	binary     bool
+	header       http.Header
+	lockedHeader http.Header
+	body         bytes.Buffer
+	statusCode   int
+	binary       bool
 }
 
 func newResponseWriter() *responseWriter {
@@ -33,10 +35,34 @@ func (w *responseWriter) Write(data []byte) (int, error) {
 }
 
 func (w *responseWriter) WriteHeader(statusCode int) {
-	if statusCode < 100 || statusCode >= 600 {
-		panic(fmt.Errorf("Invalid status code %d", statusCode))
+	if w.statusCode == 0 {
+		// WriteHeader has not been called yet
+
+		if statusCode < 100 || statusCode >= 600 {
+			panic(fmt.Errorf("Invalid status code %d", statusCode))
+		}
+		w.statusCode = statusCode
+
+		// Current headers are copied into lockedHeader, so further changed to the header map will not affect headers
+		w.lockedHeader = w.header.Clone()
 	}
-	w.statusCode = statusCode
+}
+
+func (w *responseWriter) finalize() {
+	// Ensure the header has been written
+	if w.statusCode == 0 {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	body := w.body.Bytes()
+
+	// Compute Content-Length
+	w.lockedHeader.Set("Content-Length", strconv.FormatInt(int64(len(body)), 10))
+
+	// Compute Content-Type if not set
+	if len(body) > 0 && w.lockedHeader.Get("Content-Type") == "" {
+		w.lockedHeader.Set("Content-Type", http.DetectContentType(body))
+	}
 }
 
 // SetBinary enforces binary mode for the given ResponseWriter.

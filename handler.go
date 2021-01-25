@@ -43,11 +43,12 @@ func (h handler) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
 
 	// Let the handler process the request
 	h.httpHandler.ServeHTTP(w, httpRequest)
+	w.finalize()
 
 	return json.Marshal(&Response{
 		StatusCode:        w.statusCode,
-		Headers:           toSingleValueHeaders(w.Header()),
-		MultiValueHeaders: w.Header(),
+		Headers:           toSingleValueHeaders(w.lockedHeader),
+		MultiValueHeaders: w.lockedHeader,
 		Body:              bytesToBody(w.body.Bytes(), w.binary),
 		IsBase64Encoded:   w.binary,
 	})
