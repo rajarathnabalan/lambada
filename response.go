@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/morelj/httptools/header"
 )
 
 // responseWriter is an implementation of http.ResponseWriter which stores the data written to it internally.
@@ -57,11 +59,11 @@ func (w *responseWriter) finalize() {
 	body := w.body.Bytes()
 
 	// Compute Content-Length
-	w.lockedHeader.Set("Content-Length", strconv.FormatInt(int64(len(body)), 10))
+	w.lockedHeader.Set(header.ContentLength, strconv.FormatInt(int64(len(body)), 10))
 
 	// Compute Content-Type if not set
-	if len(body) > 0 && w.lockedHeader.Get("Content-Type") == "" {
-		w.lockedHeader.Set("Content-Type", http.DetectContentType(body))
+	if len(body) > 0 && w.lockedHeader.Get(header.ContentType) == "" {
+		w.lockedHeader.Set(header.ContentType, http.DetectContentType(body))
 	}
 }
 
