@@ -15,6 +15,7 @@ func toSingleValueHeaders(h http.Header) map[string]string {
 }
 
 // fromSingleValueHeaders returns a http.Header from a map of single-valued headers.
+// Header keys are canonicalized (using textproto.CanonicalMIMEHeaderKey) during the copy.
 func fromSingleValueHeaders(h map[string]string) http.Header {
 	res := make(http.Header)
 	for k, v := range h {
