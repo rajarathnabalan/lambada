@@ -1,6 +1,7 @@
 package lambada
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -79,4 +80,56 @@ func TestResponseWriterBinary2(t *testing.T) {
 	assert.NotPanics(func() {
 		SetText(w)
 	})
+}
+
+func TestResponseWriterStatusCode(t *testing.T) {
+	cases := []struct {
+		w        *ResponseWriter
+		expected int
+	}{
+		{
+			w:        newResponseWriter(),
+			expected: http.StatusOK,
+		},
+		{
+			w: func() *ResponseWriter {
+				w := newResponseWriter()
+				w.WriteHeader(http.StatusInternalServerError)
+				return w
+			}(),
+			expected: http.StatusInternalServerError,
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			assert.Equal(t, c.expected, c.w.StatusCode())
+		})
+	}
+}
+
+func TestReponseWriterBody(t *testing.T) {
+	cases := []struct {
+		w        *ResponseWriter
+		expected []byte
+	}{
+		{
+			w:        newResponseWriter(),
+			expected: nil,
+		},
+		{
+			w: func() *ResponseWriter {
+				w := newResponseWriter()
+				w.Write([]byte{1, 2, 3, 4})
+				return w
+			}(),
+			expected: []byte{1, 2, 3, 4},
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			assert.Equal(t, c.expected, c.w.Body())
+		})
+	}
 }
