@@ -1,6 +1,9 @@
 package lambada
 
-import "github.com/aws/aws-lambda-go/events"
+import (
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/morelj/lambada/jwtclaims"
+)
 
 // Request represents an API Gateway event.
 // This struct is both compatible with V1 (Lambda Proxy Integration) and V2 (HTTP API) events and is basically a merge
@@ -53,13 +56,13 @@ type RequestContext struct {
 	HTTP      events.APIGatewayV2HTTPRequestContextHTTPDescription `json:"http"`
 
 	// V1 + V2
-	AccountID    string                 `json:"accountId"`
-	Stage        string                 `json:"stage"`
-	DomainName   string                 `json:"domainName"`
-	DomainPrefix string                 `json:"domainPrefix"`
-	RequestID    string                 `json:"requestId"`
-	APIID        string                 `json:"apiId"` // The API Gateway rest API Id
-	Authorizer   map[string]interface{} `json:"authorizer"`
+	AccountID    string      `json:"accountId"`
+	Stage        string      `json:"stage"`
+	DomainName   string      `json:"domainName"`
+	DomainPrefix string      `json:"domainPrefix"`
+	RequestID    string      `json:"requestId"`
+	APIID        string      `json:"apiId"` // The API Gateway rest API Id
+	Authorizer   *Authorizer `json:"authorizer,omitempty"`
 }
 
 // Response contains the response to send back to API Gateway
@@ -76,4 +79,26 @@ type Response struct {
 	MultiValueHeaders map[string][]string `json:"multiValueHeaders"`
 	Body              string              `json:"body"`
 	IsBase64Encoded   bool                `json:"isBase64Encoded,omitempty"`
+}
+
+// Authorizer contains authorizer details
+type Authorizer struct {
+	IAM *IAMAuthorizer `json:"iam,omitempty"`
+	JWT *JWTAuthorizer `json:"jwt,omitempty"`
+}
+
+// IAMAuthorizer contains the details of a request authenticated using the AWS SignV4 authorizer.
+type IAMAuthorizer struct {
+	AccessKey      string `json:"accessKey,omitempty"`
+	AccountID      string `json:"accountId,omitempty"`
+	CallerID       string `json:"callerId,omitempty"`
+	PrincipalOrgID string `json:"principalOrgId,omitempty"`
+	UserARN        string `json:"userArn,omitempty"`
+	UserID         string `json:"userId,omitempty"`
+}
+
+// JWTAuthorizer contains the details of a request authenticated using the JWT authorizer.
+type JWTAuthorizer struct {
+	Claims jwtclaims.Claims `json:"claims,omitempty"`
+	Scopes interface{}      `json:"scopes,omitempty"`
 }
