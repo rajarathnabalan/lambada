@@ -15,19 +15,23 @@ import (
 // You usually access ResponseWriter through the http.ResponseWriter interface.
 // If you need to access the underlying ResponseWriter use:
 //
-//    // w is an http.ResponseWriter
-//    rw, ok := w.(*lambada.ResponseWriter)
+//	// w is an http.ResponseWriter
+//	rw, ok := w.(*lambada.ResponseWriter)
 type ResponseWriter struct {
-	header       http.Header
-	lockedHeader http.Header
-	body         bytes.Buffer
-	statusCode   int
-	binary       bool
+	outputMode            OutputMode
+	header                http.Header
+	lockedHeader          http.Header
+	body                  bytes.Buffer
+	statusCode            int
+	binary                bool
+	ignoreBinaryDetection bool
 }
 
-func newResponseWriter() *ResponseWriter {
+func newResponseWriter(outputMode OutputMode, binary bool) *ResponseWriter {
 	return &ResponseWriter{
-		header: http.Header{},
+		outputMode: outputMode,
+		header:     http.Header{},
+		binary:     binary,
 	}
 }
 
@@ -73,9 +77,22 @@ func (w *ResponseWriter) finalize() {
 	// Compute Content-Length
 	w.lockedHeader.Set(header.ContentLength, strconv.FormatInt(int64(len(body)), 10))
 
-	// Compute Content-Type if not set
-	if len(body) > 0 && w.lockedHeader.Get(header.ContentType) == "" {
-		w.lockedHeader.Set(header.ContentType, http.DetectContentType(body))
+	if w.outputMode >= AutoContentType {
+		// Compute Content-Type if not set
+		if len(body) > 0 && w.lockedHeader.Get(header.ContentType) == "" {
+			w.lockedHeader.Set(header.ContentType, http.DetectContentType(body))
+		}
+
+		if w.outputMode >= Automatic && !w.ignoreBinaryDetection {
+			// Detect if output is binary
+			// We don't change the mode if we can't determine if the output is binary or not
+			switch isBinary(w.lockedHeader.Get(header.ContentType), w.lockedHeader.Get(header.ContentEncoding)) {
+			case bsBinary:
+				w.SetBinary(true)
+			case bsText:
+				w.SetBinary(false)
+			}
+		}
 	}
 }
 
@@ -97,8 +114,22 @@ func (w *ResponseWriter) Body() []byte {
 
 // SetBinary sets whether or not the binary mode should be enabled or not.
 // When binary mode is enabled, the response is encoded to Base64 before being returned to API Gateway.
+// The mode set through this function is forced - meaning that automatic binary detection will be skipped.
+// Use AllowBinaryDetection() to revert this behavior.
 func (w *ResponseWriter) SetBinary(binary bool) {
 	w.binary = binary
+	w.ignoreBinaryDetection = true
+}
+
+// AllowBinaryDetection allows binary detection to happen on w.
+// Automatic binary detection will only happen when the OutputMode is set to Automatic.
+func (w *ResponseWriter) AllowBinaryDetection() {
+	w.ignoreBinaryDetection = false
+}
+
+// SetOutputMode sets the output mode for w.
+func (w *ResponseWriter) SetOutputMode(outputMode OutputMode) {
+	w.outputMode = outputMode
 }
 
 // SetBinary enforces binary mode for the given ResponseWriter.
@@ -118,5 +149,12 @@ func SetBinary(w http.ResponseWriter) {
 func SetText(w http.ResponseWriter) {
 	if w, ok := w.(*ResponseWriter); ok {
 		w.SetBinary(false)
+	}
+}
+
+// SetOutputMode sets the given output mode to the given ResponseWriter.
+func SetOutputMode(w http.ResponseWriter, outputMode OutputMode) {
+	if w, ok := w.(*ResponseWriter); ok {
+		w.SetOutputMode(outputMode)
 	}
 }

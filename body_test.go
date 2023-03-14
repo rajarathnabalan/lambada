@@ -1,6 +1,7 @@
 package lambada
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -70,5 +71,62 @@ func TestBytesToBody(t *testing.T) {
 	for i, c := range cases {
 		str := bytesToBody(c.bytes, c.isBase64)
 		assert.Equalf(c.expected, str, "Case %d", i)
+	}
+}
+
+func TestIsBinary(t *testing.T) {
+	cases := []struct {
+		contentType     string
+		contentEncoding string
+		status          binaryStatus
+	}{
+		{
+			contentType:     "application/json",
+			contentEncoding: "",
+			status:          bsText,
+		},
+		{
+			contentType:     "text/csv",
+			contentEncoding: "",
+			status:          bsText,
+		},
+		{
+			contentType:     "application/pdf",
+			contentEncoding: "",
+			status:          bsBinary,
+		},
+		{
+			contentType:     "text/vnd.a",
+			contentEncoding: "",
+			status:          bsText,
+		},
+		{
+			contentType:     "video/H264",
+			contentEncoding: "",
+			status:          bsBinary,
+		},
+		{
+			contentType:     "application/pskc+xml",
+			contentEncoding: "",
+			status:          bsText,
+		},
+		{
+			contentType:     "text/plain",
+			contentEncoding: "gzip",
+			status:          bsBinary,
+		},
+		{
+			contentType:     "unknown/unknown",
+			contentEncoding: "",
+			status:          bsUnknown,
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(fmt.Sprintf("%d_%s_%s", i, c.contentType, c.contentEncoding), func(t *testing.T) {
+			assert := assert.New(t)
+			status := isBinary(c.contentType, c.contentEncoding)
+			assert.Equal(c.status, status)
+		})
 	}
 }

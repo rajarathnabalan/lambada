@@ -14,7 +14,7 @@ func TestResponseWriter(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	w := newResponseWriter()
+	w := newResponseWriter(AutoContentType, false)
 	require.NotNil(w)
 	require.NotNil(w.header)
 	assert.False(w.binary)
@@ -38,7 +38,7 @@ func TestResponseWriter(t *testing.T) {
 func TestResponseWriterFinalize(t *testing.T) {
 	assert := assert.New(t)
 
-	w := newResponseWriter()
+	w := newResponseWriter(AutoContentType, false)
 
 	// Should trigger a WriteHeader
 	w.finalize()
@@ -48,7 +48,7 @@ func TestResponseWriterFinalize(t *testing.T) {
 func TestResponseWriterInvalidStatus(t *testing.T) {
 	assert := assert.New(t)
 
-	w := newResponseWriter()
+	w := newResponseWriter(AutoContentType, false)
 	for value := range []int{0, 10, 99, 625, 999} {
 		assert.Panics(func() {
 			w.WriteHeader(value)
@@ -59,7 +59,7 @@ func TestResponseWriterInvalidStatus(t *testing.T) {
 func TestResponseWriterBinary(t *testing.T) {
 	assert := assert.New(t)
 
-	w := newResponseWriter()
+	w := newResponseWriter(AutoContentType, false)
 	assert.False(w.binary)
 
 	SetBinary(w)
@@ -88,12 +88,12 @@ func TestResponseWriterStatusCode(t *testing.T) {
 		expected int
 	}{
 		{
-			w:        newResponseWriter(),
+			w:        newResponseWriter(AutoContentType, false),
 			expected: http.StatusOK,
 		},
 		{
 			w: func() *ResponseWriter {
-				w := newResponseWriter()
+				w := newResponseWriter(AutoContentType, false)
 				w.WriteHeader(http.StatusInternalServerError)
 				return w
 			}(),
@@ -114,12 +114,12 @@ func TestReponseWriterBody(t *testing.T) {
 		expected []byte
 	}{
 		{
-			w:        newResponseWriter(),
+			w:        newResponseWriter(AutoContentType, false),
 			expected: nil,
 		},
 		{
 			w: func() *ResponseWriter {
-				w := newResponseWriter()
+				w := newResponseWriter(AutoContentType, false)
 				w.Write([]byte{1, 2, 3, 4})
 				return w
 			}(),
