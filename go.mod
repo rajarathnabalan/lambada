@@ -1,4 +1,4 @@
-module github.com/morelj/lambada
+module github.com/rajarathnabalan/lambada
 
 go 1.17
 
