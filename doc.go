@@ -9,7 +9,7 @@
 //	import (
 //	    "net/http"
 //
-//	    "github.com/morelj/lambada"
+//	    "github.com/rajarathnabalan/lambada"
 //	)
 //
 //	func main() {

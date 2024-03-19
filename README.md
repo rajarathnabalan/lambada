@@ -15,7 +15,7 @@ Lambada is compatible with both API Gateway V1 using the Lambda Proxy integratio
 Install using `go get`:
 
 ```
-go get github.com/morelj/lambada
+go get github.com/rajarathnabalan/lambada
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ The quickest way to get started with Lambada is simply to use the `lambada.Serve
 ```go
 import (
     "net/http"
-    "github.com/morelj/lambada"
+    "github.com/rajarathnabalan/lambada"
 )
 
 func main() {
@@ -41,7 +41,7 @@ If you wish to control how do you start the Lambda handler, use `lambada.NewHand
 ```go
 import (
     "net/http"
-    "github.com/morelj/lambada"
+    "github.com/rajarathnabalan/lambada"
     "github.com/aws/aws-lambda-go/lambda"
 )
 

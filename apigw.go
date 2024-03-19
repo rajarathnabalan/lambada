@@ -2,7 +2,7 @@ package lambada
 
 import (
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/morelj/lambada/jwtclaims"
+	"github.com/rajarathnabalan/lambada/jwtclaims"
 )
 
 // Request represents an API Gateway event.
